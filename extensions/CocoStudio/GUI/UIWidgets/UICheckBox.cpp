@@ -33,13 +33,18 @@ m_pFrontCrossRenderer(NULL),
 m_pBackGroundBoxDisabledRenderer(NULL),
 m_pFrontCrossDisabledRenderer(NULL),
 m_bIsSelected(true),
-m_pSelectedStateEventListener(NULL),
-m_pfnSelectedStateEventSelector(NULL),
+m_pCheckBoxEventListener(NULL),
+m_pfnCheckBoxEventSelector(NULL),
 m_eBackGroundTexType(UI_TEX_TYPE_LOCAL),
 m_eBackGroundSelectedTexType(UI_TEX_TYPE_LOCAL),
 m_eFrontCrossTexType(UI_TEX_TYPE_LOCAL),
 m_eBackGroundDisabledTexType(UI_TEX_TYPE_LOCAL),
 m_eFrontCrossDisabledTexType(UI_TEX_TYPE_LOCAL),
+m_strBackGroundFileName(""),
+m_strBackGroundSelectedFileName(""),
+m_strFrontCrossFileName(""),
+m_strBackGroundDisabledFileName(""),
+m_strFrontCrossDisabledFileName(""),
 /*Compatible*/
 m_pSelectListener(NULL),
 m_pfnSelectSelector(NULL),
@@ -51,7 +56,12 @@ m_pfnUnSelectSelector(NULL)
 
 UICheckBox::~UICheckBox()
 {
-    
+    m_pCheckBoxEventListener = NULL;
+    m_pfnCheckBoxEventSelector = NULL;
+    m_pSelectListener = NULL;
+    m_pfnSelectSelector = NULL;
+    m_pUnSelectListener = NULL;
+    m_pfnUnSelectSelector = NULL;
 }
 
 UICheckBox* UICheckBox::create()
@@ -106,6 +116,7 @@ void UICheckBox::loadTextureBackGround(const char *backGround,TextureResType tex
     {
         return;
     }
+    m_strBackGroundFileName = backGround;
     m_eBackGroundTexType = texType;
     switch (m_eBackGroundTexType)
     {
@@ -118,8 +129,8 @@ void UICheckBox::loadTextureBackGround(const char *backGround,TextureResType tex
         default:
             break;
     }
-    m_pBackGroundBoxRenderer->setColor(getColor());
-    m_pBackGroundBoxRenderer->setOpacity(getOpacity());
+    m_pBackGroundBoxRenderer->updateDisplayedColor(getColor());
+    m_pBackGroundBoxRenderer->updateDisplayedOpacity(getOpacity());
     backGroundTextureScaleChangedWithSize();
 }
 
@@ -129,6 +140,7 @@ void UICheckBox::loadTextureBackGroundSelected(const char *backGroundSelected,Te
     {
         return;
     }
+    m_strBackGroundSelectedFileName = backGroundSelected;
     m_eBackGroundSelectedTexType = texType;
     switch (m_eBackGroundSelectedTexType)
     {
@@ -141,8 +153,8 @@ void UICheckBox::loadTextureBackGroundSelected(const char *backGroundSelected,Te
         default:
             break;
     }
-    m_pBackGroundSelectedBoxRenderer->setColor(getColor());
-    m_pBackGroundSelectedBoxRenderer->setOpacity(getOpacity());
+    m_pBackGroundSelectedBoxRenderer->updateDisplayedColor(getColor());
+    m_pBackGroundSelectedBoxRenderer->updateDisplayedOpacity(getOpacity());
     backGroundSelectedTextureScaleChangedWithSize();
 }
 
@@ -152,6 +164,7 @@ void UICheckBox::loadTextureFrontCross(const char *cross,TextureResType texType)
     {
         return;
     }
+    m_strFrontCrossFileName = cross;
     m_eFrontCrossTexType = texType;
     switch (m_eFrontCrossTexType)
     {
@@ -164,8 +177,8 @@ void UICheckBox::loadTextureFrontCross(const char *cross,TextureResType texType)
         default:
             break;
     }
-    m_pFrontCrossRenderer->setColor(getColor());
-    m_pFrontCrossRenderer->setOpacity(getOpacity());
+    m_pFrontCrossRenderer->updateDisplayedColor(getColor());
+    m_pFrontCrossRenderer->updateDisplayedOpacity(getOpacity());
     frontCrossTextureScaleChangedWithSize();
 }
 
@@ -175,6 +188,7 @@ void UICheckBox::loadTextureBackGroundDisabled(const char *backGroundDisabled,Te
     {
         return;
     }
+    m_strBackGroundDisabledFileName = backGroundDisabled;
     m_eBackGroundDisabledTexType = texType;
     switch (m_eBackGroundDisabledTexType)
     {
@@ -187,8 +201,8 @@ void UICheckBox::loadTextureBackGroundDisabled(const char *backGroundDisabled,Te
         default:
             break;
     }
-    m_pBackGroundBoxDisabledRenderer->setColor(getColor());
-    m_pBackGroundBoxDisabledRenderer->setOpacity(getOpacity());
+    m_pBackGroundBoxDisabledRenderer->updateDisplayedColor(getColor());
+    m_pBackGroundBoxDisabledRenderer->updateDisplayedOpacity(getOpacity());
     backGroundDisabledTextureScaleChangedWithSize();
 }
 
@@ -198,6 +212,7 @@ void UICheckBox::loadTextureFrontCrossDisabled(const char *frontCrossDisabled,Te
     {
         return;
     }
+    m_strFrontCrossDisabledFileName = frontCrossDisabled;
     m_eFrontCrossDisabledTexType = texType;
     switch (m_eFrontCrossDisabledTexType)
     {
@@ -210,8 +225,8 @@ void UICheckBox::loadTextureFrontCrossDisabled(const char *frontCrossDisabled,Te
         default:
             break;
     }
-    m_pFrontCrossDisabledRenderer->setColor(getColor());
-    m_pFrontCrossRenderer->setOpacity(getOpacity());
+    m_pFrontCrossDisabledRenderer->updateDisplayedColor(getColor());
+    m_pFrontCrossRenderer->updateDisplayedOpacity(getOpacity());
     frontCrossDisabledTextureScaleChangedWithSize();
 }
 
@@ -285,9 +300,9 @@ void UICheckBox::selectedEvent()
         (m_pSelectListener->*m_pfnSelectSelector)(this);
     }
     /************/
-    if (m_pSelectedStateEventListener && m_pfnSelectedStateEventSelector)
+    if (m_pCheckBoxEventListener && m_pfnCheckBoxEventSelector)
     {
-        (m_pSelectedStateEventListener->*m_pfnSelectedStateEventSelector)(this,CHECKBOX_STATE_EVENT_SELECTED);
+        (m_pCheckBoxEventListener->*m_pfnCheckBoxEventSelector)(this,CHECKBOX_STATE_EVENT_SELECTED);
     }
 }
 
@@ -299,16 +314,16 @@ void UICheckBox::unSelectedEvent()
         (m_pUnSelectListener->*m_pfnUnSelectSelector)(this);
     }
     /************/
-    if (m_pSelectedStateEventListener && m_pfnSelectedStateEventSelector)
+    if (m_pCheckBoxEventListener && m_pfnCheckBoxEventSelector)
     {
-        (m_pSelectedStateEventListener->*m_pfnSelectedStateEventSelector)(this,CHECKBOX_STATE_EVENT_UNSELECTED);
+        (m_pCheckBoxEventListener->*m_pfnCheckBoxEventSelector)(this,CHECKBOX_STATE_EVENT_UNSELECTED);
     }
 }
 
-void UICheckBox::addEventListener(cocos2d::CCObject *target, SEL_SelectedStateEvent selector)
+void UICheckBox::addEventListenerCheckBox(cocos2d::CCObject *target, SEL_SelectedStateEvent selector)
 {
-    m_pSelectedStateEventListener = target;
-    m_pfnSelectedStateEventSelector = selector;
+    m_pCheckBoxEventListener = target;
+    m_pfnCheckBoxEventSelector = selector;
 }
 
 void UICheckBox::setFlipX(bool flipX)
@@ -477,6 +492,25 @@ void UICheckBox::frontCrossDisabledTextureScaleChangedWithSize()
 const char* UICheckBox::getDescription() const
 {
     return "CheckBox";
+}
+
+UIWidget* UICheckBox::createCloneInstance()
+{
+    return UICheckBox::create();
+}
+
+void UICheckBox::copySpecialProperties(UIWidget *widget)
+{
+    UICheckBox* checkBox = dynamic_cast<UICheckBox*>(widget);
+    if (checkBox)
+    {
+        loadTextureBackGround(checkBox->m_strBackGroundFileName.c_str(), checkBox->m_eBackGroundTexType);
+        loadTextureBackGroundSelected(checkBox->m_strBackGroundSelectedFileName.c_str(), checkBox->m_eBackGroundSelectedTexType);
+        loadTextureFrontCross(checkBox->m_strFrontCrossFileName.c_str(), checkBox->m_eFrontCrossTexType);
+        loadTextureBackGroundDisabled(checkBox->m_strBackGroundDisabledFileName.c_str(), checkBox->m_eBackGroundDisabledTexType);
+        loadTextureFrontCrossDisabled(checkBox->m_strFrontCrossDisabledFileName.c_str(), checkBox->m_eFrontCrossDisabledTexType);
+        setSelectedState(checkBox->m_bIsSelected);
+    }
 }
 
 NS_CC_EXT_END

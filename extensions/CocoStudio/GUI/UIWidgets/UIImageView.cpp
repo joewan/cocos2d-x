@@ -85,28 +85,30 @@ void UIImageView::loadTexture(const char *fileName, TextureResType texType)
             if (m_bScale9Enabled)
             {
                 DYNAMIC_CAST_SCALE9SPRITE->initWithFile(fileName);
-                DYNAMIC_CAST_SCALE9SPRITE->setColor(getColor());
-                DYNAMIC_CAST_SCALE9SPRITE->setOpacity(getOpacity());
+                DYNAMIC_CAST_SCALE9SPRITE->updateDisplayedColor(getColor());
+                DYNAMIC_CAST_SCALE9SPRITE->updateDisplayedOpacity(getOpacity());
+                DYNAMIC_CAST_SCALE9SPRITE->setCapInsets(m_capInsets);
             }
             else
             {
                 DYNAMIC_CAST_CCSPRITE->initWithFile(fileName);
-                DYNAMIC_CAST_CCSPRITE->setColor(getColor());
-                DYNAMIC_CAST_CCSPRITE->setOpacity(getOpacity());
+				DYNAMIC_CAST_CCSPRITE->updateDisplayedColor(getColor());
+                DYNAMIC_CAST_CCSPRITE->updateDisplayedOpacity(getOpacity());
             }
             break;
         case UI_TEX_TYPE_PLIST:
             if (m_bScale9Enabled)
             {
                 DYNAMIC_CAST_SCALE9SPRITE->initWithSpriteFrameName(fileName);
-                DYNAMIC_CAST_SCALE9SPRITE->setColor(getColor());
-                DYNAMIC_CAST_SCALE9SPRITE->setOpacity(getOpacity());
+                DYNAMIC_CAST_SCALE9SPRITE->updateDisplayedColor(getColor());
+                DYNAMIC_CAST_SCALE9SPRITE->updateDisplayedOpacity(getOpacity());
+                DYNAMIC_CAST_SCALE9SPRITE->setCapInsets(m_capInsets);
             }
             else
             {
                 DYNAMIC_CAST_CCSPRITE->initWithSpriteFrameName(fileName);
-                DYNAMIC_CAST_CCSPRITE->setColor(getColor());
-                DYNAMIC_CAST_CCSPRITE->setOpacity(getOpacity());
+                DYNAMIC_CAST_CCSPRITE->updateDisplayedColor(getColor());
+                DYNAMIC_CAST_CCSPRITE->updateDisplayedOpacity(getOpacity());
             }
             break;
         default:
@@ -371,6 +373,23 @@ void UIImageView::imageTextureScaleChangedWithSize()
 const char* UIImageView::getDescription() const
 {
     return "ImageView";
+}
+
+UIWidget* UIImageView::createCloneInstance()
+{
+    return UIImageView::create();
+}
+
+void UIImageView::copySpecialProperties(UIWidget *widget)
+{
+    UIImageView* imageView = dynamic_cast<UIImageView*>(widget);
+    if (imageView)
+    {
+        m_bPrevIgnoreSize = imageView->m_bPrevIgnoreSize;
+        setScale9Enabled(imageView->m_bScale9Enabled);
+        loadTexture(imageView->m_strTextureFile.c_str(), imageView->m_eImageTexType);
+        setCapInsets(imageView->m_capInsets);
+    }
 }
 
 NS_CC_EXT_END

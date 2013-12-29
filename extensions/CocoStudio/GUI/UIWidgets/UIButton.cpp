@@ -184,8 +184,9 @@ void UIButton::loadTextureNormal(const char* normal,TextureResType texType)
             default:
                 break;
         }
-        dynamic_cast<CCScale9Sprite*>(m_pButtonNormalRenderer)->setColor(getColor());
-        dynamic_cast<CCScale9Sprite*>(m_pButtonNormalRenderer)->setOpacity(getOpacity());
+        dynamic_cast<CCScale9Sprite*>(m_pButtonNormalRenderer)->updateDisplayedColor(getColor());
+        dynamic_cast<CCScale9Sprite*>(m_pButtonNormalRenderer)->updateDisplayedOpacity(getOpacity());
+        dynamic_cast<CCScale9Sprite*>(m_pButtonNormalRenderer)->setCapInsets(m_capInsetsNormal);
     }
     else
     {
@@ -200,8 +201,8 @@ void UIButton::loadTextureNormal(const char* normal,TextureResType texType)
             default:
                 break;
         }
-        dynamic_cast<CCSprite*>(m_pButtonNormalRenderer)->setColor(getColor());
-        dynamic_cast<CCSprite*>(m_pButtonNormalRenderer)->setOpacity(getOpacity());
+        dynamic_cast<CCSprite*>(m_pButtonNormalRenderer)->updateDisplayedColor(getColor());
+        dynamic_cast<CCSprite*>(m_pButtonNormalRenderer)->updateDisplayedOpacity(getOpacity());
     }
     m_normalTextureSize = m_pButtonNormalRenderer->getContentSize();
     updateAnchorPoint();
@@ -229,8 +230,9 @@ void UIButton::loadTexturePressed(const char* selected,TextureResType texType)
             default:
                 break;
         }
-        dynamic_cast<CCScale9Sprite*>(m_pButtonClickedRenderer)->setColor(getColor());
-        dynamic_cast<CCScale9Sprite*>(m_pButtonClickedRenderer)->setOpacity(getOpacity());
+        dynamic_cast<CCScale9Sprite*>(m_pButtonClickedRenderer)->updateDisplayedColor(getColor());
+        dynamic_cast<CCScale9Sprite*>(m_pButtonClickedRenderer)->updateDisplayedOpacity(getOpacity());
+        dynamic_cast<CCScale9Sprite*>(m_pButtonClickedRenderer)->setCapInsets(m_capInsetsPressed);
     }
     else
     {
@@ -245,8 +247,8 @@ void UIButton::loadTexturePressed(const char* selected,TextureResType texType)
             default:
                 break;
         }
-        dynamic_cast<CCSprite*>(m_pButtonClickedRenderer)->setColor(getColor());
-        dynamic_cast<CCSprite*>(m_pButtonClickedRenderer)->setOpacity(getOpacity());
+        dynamic_cast<CCSprite*>(m_pButtonClickedRenderer)->updateDisplayedColor(getColor());
+        dynamic_cast<CCSprite*>(m_pButtonClickedRenderer)->updateDisplayedOpacity(getOpacity());
     }
     m_pressedTextureSize = m_pButtonClickedRenderer->getContentSize();
     updateAnchorPoint();
@@ -274,8 +276,9 @@ void UIButton::loadTextureDisabled(const char* disabled,TextureResType texType)
             default:
                 break;
         }
-        dynamic_cast<CCScale9Sprite*>(m_pButtonDisableRenderer)->setColor(getColor());
-        dynamic_cast<CCScale9Sprite*>(m_pButtonDisableRenderer)->setOpacity(getOpacity());
+        dynamic_cast<CCScale9Sprite*>(m_pButtonDisableRenderer)->updateDisplayedColor(getColor());
+        dynamic_cast<CCScale9Sprite*>(m_pButtonDisableRenderer)->updateDisplayedOpacity(getOpacity());
+        dynamic_cast<CCScale9Sprite*>(m_pButtonDisableRenderer)->setCapInsets(m_capInsetsDisabled);
     }
     else
     {
@@ -290,8 +293,8 @@ void UIButton::loadTextureDisabled(const char* disabled,TextureResType texType)
             default:
                 break;
         }
-        dynamic_cast<CCSprite*>(m_pButtonDisableRenderer)->setColor(getColor());
-        dynamic_cast<CCSprite*>(m_pButtonDisableRenderer)->setOpacity(getOpacity());
+        dynamic_cast<CCSprite*>(m_pButtonDisableRenderer)->updateDisplayedColor(getColor());
+        dynamic_cast<CCSprite*>(m_pButtonDisableRenderer)->updateDisplayedOpacity(getOpacity());
     }
     m_disabledTextureSize = m_pButtonDisableRenderer->getContentSize();
     updateAnchorPoint();
@@ -613,5 +616,32 @@ const char* UIButton::getDescription() const
 {
     return "Button";
 }
+
+UIWidget* UIButton::createCloneInstance()
+{
+    return UIButton::create();
+}
+
+void UIButton::copySpecialProperties(UIWidget *widget)
+{
+    UIButton* button = dynamic_cast<UIButton*>(widget);
+    if (button)
+    {   
+        m_bPrevIgnoreSize = button->m_bPrevIgnoreSize;
+        setScale9Enabled(button->m_bScale9Enabled);
+        loadTextureNormal(button->m_strNormalFileName.c_str(), button->m_eNormalTexType);
+        loadTexturePressed(button->m_strClickedFileName.c_str(), button->m_ePressedTexType);
+        loadTextureDisabled(button->m_strDisabledFileName.c_str(), button->m_eDisabledTexType);
+        setCapInsetsNormalRenderer(button->m_capInsetsNormal);
+        setCapInsetsPressedRenderer(button->m_capInsetsPressed);
+        setCapInsetsDisabledRenderer(button->m_capInsetsDisabled);
+        setTitleText(button->getTitleText());
+        setTitleFontName(button->getTitleFontName());
+        setTitleFontSize(button->getTitleFontSize());
+        setTitleColor(button->getTitleColor());
+        setPressedActionEnabled(button->m_bPressedActionEnabled);
+    }
+}
+
 
 NS_CC_EXT_END
