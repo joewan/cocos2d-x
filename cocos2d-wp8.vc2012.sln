@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libBox2D", "external\Box2D\proj.wp8\Box2D.vcxproj", "{79FC91D4-974C-4BC7-8E8C-79E194437DE7}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libchipmunk", "external\chipmunk\proj.wp8\chipmunk.vcxproj", "{3AD76EA1-D698-40D2-B04D-D9AB8171F40B}"

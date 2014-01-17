@@ -58,6 +58,7 @@ Developers:
     martell
         use tinyxml2 to replace libxml2
         Added Mingw-crt Support without breaking VS SDK
+        Adds emscripten support for Windows Host
 
     mchinen
         fix emulator issue for OpenGL ES 2.0 on Android
@@ -452,6 +453,15 @@ Developers:
     edwardzhou (Edward Zhou)
         Correcting the type detecting order for Lua CCBProxy::getNodeTypeName.
         Casting variables to their own type, and print warning info if no corresponding lua callback function instead of crash.
+        
+    hbbalfred
+        Fixed a bug that cc.BuilderReader.load( path, null, parentSize ); was not allowed.
+        
+    seagullua
+        Fixes the font rendering on Windows
+        
+    xhcnb
+        Fixed a bug that it will get wrong custom properties when use different count custom properties in CocosBuilder.
 
 Retired Core Developers:
     WenSheng Yang

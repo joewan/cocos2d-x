@@ -26,8 +26,9 @@ THE SOFTWARE.
 #define __TRIGGERMNG_H__
 
 #include "cocos2d.h"
-#include "cocos-ext.h"
 #include "ExtensionMacros.h"
+#include "../Json/DictionaryHelper.h"
+#include "../Armature/CCArmature.h"
 
 NS_CC_EXT_BEGIN
 
@@ -39,7 +40,7 @@ public:
 	ArmatureMovementDispatcher(void);
 	~ArmatureMovementDispatcher(void);
 public:
-	void addAnnimationEventCallBack(CCObject*pTarget, SEL_MovementEventCallFunc mecf);
+	void addAnimationEventCallBack(CCObject*pTarget, SEL_MovementEventCallFunc mecf);
 	void removeAnnimationEventCallBack(CCObject*pTarget, SEL_MovementEventCallFunc mecf);
 	void animationEvent(cocos2d::extension::CCArmature *armature, cocos2d::extension::MovementEventType movementType, const char *movementID);
 	std::map<CCObject*, SEL_MovementEventCallFunc> *_mapEventAnimation;
