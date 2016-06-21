@@ -22,16 +22,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "CCWinRTUtils.h"
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN 1
-#endif
-#include <Windows.h>
+#include "platform/winrt/CCWinRTUtils.h"
 #include <wrl/client.h>
 #include <wrl/wrappers/corewrappers.h>
 #include <ppl.h>
 #include <ppltasks.h>
 #include <sstream>
+#include "base/ccMacros.h"
+#include "platform/CCPlatformMacros.h"
+#include "platform/CCFileUtils.h"
+#include "base/CCUserDefault.h"
 
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
@@ -153,7 +153,7 @@ std::string PlatformStringToString(Platform::String^ s) {
 Platform::String^ PlatformStringFromString(const std::string& s)
 {
     std::wstring ws = StringUtf8ToWideChar(s);
-    return ref new Platform::String(ws.data(), ws.length());
+    return ref new Platform::String(ws.data(), static_cast<unsigned int>(ws.length()));
 }
 
 #if 0
@@ -321,8 +321,7 @@ Concurrency::task<Platform::Array<byte>^> ReadDataAsync(Platform::String^ path)
 std::string computeHashForFile(const std::string& filePath)
 {
     std::string ret = filePath;
-    int pos = std::string::npos;
-    pos = ret.find_last_of('/');
+    size_t pos = ret.find_last_of('/');
 
     if (pos != std::string::npos) {
         ret = ret.substr(pos);

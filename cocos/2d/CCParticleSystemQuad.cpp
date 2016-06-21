@@ -41,8 +41,7 @@ THE SOFTWARE.
 #include "base/CCConfiguration.h"
 #include "base/CCEventListenerCustom.h"
 #include "base/CCEventDispatcher.h"
-
-#include "deprecated/CCString.h"
+#include "base/ccUTF8.h"
 
 NS_CC_BEGIN
 
@@ -480,7 +479,7 @@ void ParticleSystemQuad::setTotalParticles(int tp)
         size_t indicesSize = sizeof(_indices[0]) * tp * 6 * 1;
 
         _particleData.release();
-        if (_particleData.init(tp))
+        if (!_particleData.init(tp))
         {
             CCLOG("Particle system: not enough memory");
             return;
@@ -706,5 +705,4 @@ std::string ParticleSystemQuad::getDescription() const
 {
     return StringUtils::format("<ParticleSystemQuad | Tag = %d, Total Particles = %d>", _tag, _totalParticles);
 }
-
 NS_CC_END

@@ -1,5 +1,3 @@
-
-
 /****************************************************************************
 Copyright (c) 2008-2010 Ricardo Quesada
 Copyright (c) 2009      Valentin Milea
@@ -37,6 +35,7 @@ THE SOFTWARE.
 #include "base/CCDirector.h"
 #include "base/CCScheduler.h"
 #include "base/CCEventDispatcher.h"
+#include "base/ccUTF8.h"
 #include "2d/CCCamera.h"
 #include "2d/CCActionManager.h"
 #include "2d/CCScene.h"
@@ -45,7 +44,6 @@ THE SOFTWARE.
 #include "renderer/CCGLProgramState.h"
 #include "renderer/CCMaterial.h"
 #include "math/TransformUtils.h"
-#include "deprecated/CCString.h"
 
 
 #if CC_NODE_RENDER_SUBPIXEL
@@ -215,9 +213,9 @@ void Node::cleanup()
     
     // actions
     this->stopAllActions();
-    this->unscheduleAllCallbacks();
-
     // timers
+    this->unscheduleAllCallbacks();
+    
     for( const auto &child: _children)
         child->cleanup();
 }
@@ -653,8 +651,9 @@ bool Node::isIgnoreAnchorPointForPosition() const
 {
     return _ignoreAnchorPointForPosition;
 }
+
 /// isRelativeAnchorPoint setter
-void Node::ignoreAnchorPointForPosition(bool newValue)
+void Node::setIgnoreAnchorPointForPosition(bool newValue)
 {
     if (newValue != _ignoreAnchorPointForPosition) 
     {
@@ -675,7 +674,7 @@ void Node::setTag(int tag)
     _tag = tag ;
 }
 
-std::string Node::getName() const
+const std::string& Node::getName() const
 {
     return _name;
 }
@@ -706,6 +705,16 @@ void Node::setOrderOfArrival(int orderOfArrival)
 
 void Node::setUserObject(Ref* userObject)
 {
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        if (userObject)
+            sEngine->retainScriptObject(this, userObject);
+        if (_userObject)
+            sEngine->releaseScriptObject(this, _userObject);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     CC_SAFE_RETAIN(userObject);
     CC_SAFE_RELEASE(_userObject);
     _userObject = userObject;
@@ -893,7 +902,7 @@ bool Node::doEnumerate(std::string name, std::function<bool (Node *)> callback) 
     }
     
     bool ret = false;
-    for (const auto& child : _children)
+    for (const auto& child : getChildren())
     {
         if (std::regex_match(child->_name, std::regex(searchName)))
         {
@@ -1073,6 +1082,13 @@ void Node::removeAllChildrenWithCleanup(bool cleanup)
         {
             child->cleanup();
         }
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            sEngine->releaseScriptObject(this, child);
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         // set parent nil at the end
         child->setParent(nullptr);
     }
@@ -1097,7 +1113,14 @@ void Node::detachChild(Node *child, ssize_t childIndex, bool doCleanup)
     {
         child->cleanup();
     }
-
+    
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        sEngine->releaseScriptObject(this, child);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     // set parent nil at the end
     child->setParent(nullptr);
 
@@ -1108,6 +1131,13 @@ void Node::detachChild(Node *child, ssize_t childIndex, bool doCleanup)
 // helper used by reorderChild & add
 void Node::insertChild(Node* child, int z)
 {
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        sEngine->retainScriptObject(this, child);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     _transformUpdated = true;
     _reorderChildDirty = true;
     _children.pushBack(child);
@@ -1758,6 +1788,7 @@ void Node::setAdditionalTransform(Mat4* additionalTransform)
     if (additionalTransform == nullptr)
     {
         _useAdditionalTransform = false;
+        _additionalTransform = Mat4::IDENTITY;
     }
     else
     {
@@ -1767,6 +1798,12 @@ void Node::setAdditionalTransform(Mat4* additionalTransform)
     _transformUpdated = _transformDirty = _inverseDirty = true;
 }
 
+void Node::setAdditionalTransform(const Mat4& additionalTransform)
+{
+    _useAdditionalTransform = true;
+    _additionalTransform = additionalTransform;
+    _transformUpdated = _transformDirty = _inverseDirty = true;
+}
 
 AffineTransform Node::getParentToNodeAffineTransform() const
 {

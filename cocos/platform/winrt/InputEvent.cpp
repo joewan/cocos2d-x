@@ -23,10 +23,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "InputEvent.h"
-#include "CCWinRTUtils.h"
-#include "CCGLViewImpl-winrt.h"
+#include "platform/winrt/InputEvent.h"
+#include "platform/winrt/CCWinRTUtils.h"
+#include "platform/winrt/CCGLViewImpl-winrt.h"
 #include "base/CCEventAcceleration.h"
+#include "base/CCDirector.h"
+#include "base/CCEventDispatcher.h"
+#include "base/CCIMEDispatcher.h"
 
 NS_CC_BEGIN
 
